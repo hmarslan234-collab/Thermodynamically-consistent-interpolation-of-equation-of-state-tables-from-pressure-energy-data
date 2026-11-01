@@ -1,0 +1,16 @@
+import numpy as np, eos as E, time
+t0=time.time()
+print('built', round(time.time()-t0,1),'s')
+from scipy.special import gamma
+print('I12 at eta=-30', E.Ik(0.5,np.array([-30.0])), gamma(1.5)*np.exp(-30))
+print('I12 eta=100 vs 2/3 eta^1.5', E.Ik(0.5,np.array([100.0]))/(2/3*100**1.5))
+n=np.array([6e22,6e24,6e26]); T=np.array([10.,100.,1e4])
+eta=E.eta_of(n,T); print('eta',eta)
+print('n back', E.C_E*T**1.5*E.Ik(0.5,eta)/n)
+G=np.array([1e-4,1e-3,1,10,100]); print('fex/(-sqrt3/3 G^1.5)', E.fex(G)/(-np.sqrt(3)/3*G**1.5)); print('fex/G', E.fex(G)/G)
+x=E.rho_to_x(np.array([0.3,5.,200.])); y=np.log(np.array([30.,300.,5000.]))
+r=E.eos(x,y)
+fx_fd=E.d1(lambda a,b:E.eos(a,b)['f'],x,y,0,0.02); fy_fd=E.d1(lambda a,b:E.eos(a,b)['f'],x,y,1,0.02)
+print('fx err',np.abs(fx_fd/r['fx']-1)); print('fy err',np.abs(fy_fd/r['fy']-1))
+fxy_fd=E.d1(lambda a,b:E.eos(a,b)['fx'],x,y,1,0.02); print('fxy err',np.abs(fxy_fd/r['fxy']-1))
+ex_fd=E.d1(lambda a,b:E.eos(a,b)['e'],x,y,0,0.02); print('maxwell', np.abs(ex_fd-(r['fx']-r['fxy']))/r['fx'])
